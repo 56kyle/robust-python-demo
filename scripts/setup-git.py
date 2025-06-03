@@ -35,7 +35,7 @@ def setup_git(path: Path, github_user: str, repo_name: str) -> None:
     check_dependencies(path=path, dependencies=["git"])
 
     for command in commands:
-        subprocess.run(command, cwd=path, capture_output=True)
+        subprocess.run(command, cwd=path, stderr=subprocess.STDOUT)
 
 
 def get_parser() -> argparse.ArgumentParser:
