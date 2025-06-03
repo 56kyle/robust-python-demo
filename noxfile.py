@@ -26,6 +26,8 @@ DEFAULT_PYTHON_VERSION: str = PYTHON_VERSIONS[-1]
 REPO_ROOT: Path = Path(__file__).parent.resolve()
 SCRIPTS_FOLDER: Path = REPO_ROOT / "scripts"
 CRATES_FOLDER: Path = REPO_ROOT / "rust"
+
+PROJECT_NAME: str = "robust-python-demo"
 PACKAGE_NAME: str = "robust_python_demo"
 GITHUB_USER: str = "56kyle"
 
@@ -48,7 +50,7 @@ CI: str = "ci"
 def setup_git(session: Session) -> None:
     """Set up the git repo for the current project."""
     session.run(
-        "python", SCRIPTS_FOLDER / "setup-git.py", REPO_ROOT, "-u", GITHUB_USER, "-n", PACKAGE_NAME, external=True
+        "python", SCRIPTS_FOLDER / "setup-git.py", REPO_ROOT, "-u", GITHUB_USER, "-n", PROJECT_NAME, external=True
     )
 
 
