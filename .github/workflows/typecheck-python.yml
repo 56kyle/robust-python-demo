@@ -30,7 +30,7 @@ on:
 
 jobs:
   typecheck-python:
-    name: Run Python Type Checks on ${{ matrix.os }}/{{"{{"}} matrix.python-version{{"}}"}}
+    name: Run Python Type Checks on ${{ matrix.os }}/${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
