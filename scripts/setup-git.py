@@ -25,6 +25,7 @@ def setup_git(path: Path, github_user: str, repo_name: str) -> None:
         ["git", "remote", "add", "origin", f"https://github.com/{github_user}/{repo_name}.git"],
         ["git", "remote", "set-url", "origin", f"https://github.com/{github_user}/{repo_name}.git"],
         ["git", "fetch", "origin"],
+        ["git", "pull"],
         ["git", "push", "-u", "origin", "main"],
         ["git", "checkout", "-b", "develop", "main"],
         ["git", "push", "-u", "origin", "develop"],
