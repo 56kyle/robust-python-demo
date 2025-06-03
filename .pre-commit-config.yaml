@@ -60,6 +60,14 @@ repos:
       - id: prettier
         name: Prettier
 
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: master
+    hooks:
+      - id: fmt
+      - id: clippy
+        args: ["--all-features", "--", "--write"]
+      - id: cargo-check
+
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.8.2
     hooks:
