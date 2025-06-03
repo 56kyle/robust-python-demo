@@ -21,10 +21,12 @@ def setup_git(path: Path, github_user: str, repo_name: str) -> None:
     """Set up the provided cookiecutter-robust-python project's git repo."""
     commands: list[list[str]] = [
         ["git", "init"],
-        ["git", "branch", "-M", "main"],
+        ["git", "branch", "-m", "master", "main"],
+        ["git", "checkout", "main"],
         ["git", "remote", "add", "origin", f"https://github.com/{github_user}/{repo_name}.git"],
         ["git", "remote", "set-url", "origin", f"https://github.com/{github_user}/{repo_name}.git"],
         ["git", "fetch", "origin"],
+        ["git", "pull"],
         ["git", "push", "-u", "origin", "main"],
         ["git", "checkout", "-b", "develop", "main"],
         ["git", "push", "-u", "origin", "develop"],
