@@ -1,0 +1,62 @@
+[project]
+name = "robust-python-demo"
+version = "0.0.0"
+description = "robust-python-demo"
+authors = [
+    { name = "Kyle Oliver", email = "56kyleoliver+cookiecutter-robust-python@gmail.com" },
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.9,<4.0"
+keywords = [
+    "robust-python-demo",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: MIT",
+]
+dependencies = [
+    "loguru>=0.7.3",
+    "platformdirs>=4.3.8",
+    "typer>=0.15.4"
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.7.0",
+    "nox>=2025.5.1",
+    "pre-commit>=4.2.0",
+    "pre-commit-hooks>=5.0.0",
+]
+docs = [
+    "furo>=2024.8.6",
+    "myst-parser>=3.0.1",
+    "sphinx>=7.4.7",
+    "sphinx-autodoc-typehints>=2.3.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-tabs>=3.4.7",
+]
+lint = [
+    "pydocstyle>=6.3.0",
+    "ruff>=0.11.9",
+]
+security = [
+    "bandit>=1.8.3",
+    "pip-audit>=2.9.0",
+]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+]
+typecheck = [
+    "pyright>=1.1.400",
+]
+
+[project.urls]
+Homepage = "https://github.com/56kyle/robust-python-demo"
+Repository = "https://github.com/56kyle/robust-python-demo"
+
+[build-system]
+requires = ["setuptools>=61.0" ]
+build-backend = "setuptools.build_meta" 
