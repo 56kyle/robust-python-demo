@@ -32,7 +32,7 @@ PACKAGE_NAME: str = "robust_python_demo"
 GITHUB_USER: str = "56kyle"
 
 ENV: str = "env"
-STYLE: str = "style"
+FORMAT: str = "format"
 LINT: str = "lint"
 TYPE: str = "type"
 TEST: str = "test"
@@ -42,15 +42,16 @@ PERF: str = "perf"
 DOCS: str = "docs"
 BUILD: str = "build"
 RELEASE: str = "release"
-MAINTENANCE: str = "maintenance"
 CI: str = "ci"
+PYTHON: str = "python"
+RUST: str = "rust"
 
 
 @nox.session(python=None, name="setup-git", tags=[ENV])
 def setup_git(session: Session) -> None:
     """Set up the git repo for the current project."""
     session.run(
-        "python", SCRIPTS_FOLDER / "setup-git.py", REPO_ROOT, "-u", GITHUB_USER, "-n", PROJECT_NAME, external=True
+        "python", SCRIPTS_FOLDER / "setup-git.py", REPO_ROOT, external=True
     )
 
 
@@ -60,7 +61,8 @@ def setup_venv(session: Session) -> None:
     session.run("python", SCRIPTS_FOLDER / "setup-venv.py", REPO_ROOT, "-p", PYTHON_VERSIONS[0], external=True)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="pre-commit")
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, name="pre-commit", tags=[CI])
 def precommit(session: Session) -> None:
     """Lint using pre-commit."""
     args: list[str] = session.posargs or ["run", "--all-files", "--hook-stage=manual", "--show-diff-on-failure"]
@@ -73,21 +75,42 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@nox.session(python=PYTHON_VERSIONS, name="typecheck", tags=[TYPE])
+@nox.session(python=DEFAULT_PYTHON_VERSION, name="format-python", tags=[FORMAT, PYTHON])
+def format_python(session: Session) -> None:
+    """Run Python code formatter (Ruff format)."""
+    session.log("Installing formatting dependencies...")
+    session.install("-e", ".", "--group", "dev")
+
+    session.log(f"Running Ruff formatter check with py{session.python}.")
+    # Use --check, not fix. Fixing is done by pre-commit or manual run.
+    session.run("ruff", "format", *session.posargs)
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, name="lint-python", tags=[LINT, PYTHON])
+def lint_python(session: Session) -> None:
+    """Run Python code linters (Ruff check, Pydocstyle rules)."""
+    session.log("Installing linting dependencies...")
+    session.install("-e", ".", "--group", "dev")
+
+    session.log(f"Running Ruff check with py{session.python}.")
+    session.run("ruff", "check", "--verbose")
+
+
+@nox.session(python=PYTHON_VERSIONS, name="typecheck", tags=[TYPE, PYTHON, CI])
 def typecheck(session: Session) -> None:
     """Run static type checking (Pyright) on Python code."""
     session.log("Installing type checking dependencies...")
-    session.install("-e", ".", "--group", "dev", "--group", "typecheck")
+    session.install("-e", ".", "--group", "dev")
 
     session.log(f"Running Pyright check with py{session.python}.")
     session.run("pyright")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="security-python", tags=[SECURITY])
+@nox.session(python=DEFAULT_PYTHON_VERSION, name="security-python", tags=[SECURITY, PYTHON, CI])
 def security_python(session: Session) -> None:
     """Run code security checks (Bandit) on Python code."""
     session.log("Installing security dependencies...")
-    session.install("-e", ".", "--group", "dev", "--group", "security")
+    session.install("-e", ".", "--group", "dev")
 
     session.log(f"Running Bandit static security analysis with py{session.python}.")
     session.run("bandit", "-r", PACKAGE_NAME, "-c", "bandit.yml", "-ll")
@@ -96,11 +119,11 @@ def security_python(session: Session) -> None:
     session.run("pip-audit")
 
 
-@nox.session(python=PYTHON_VERSIONS, name="tests-python", tags=[TEST])
+@nox.session(python=PYTHON_VERSIONS, name="tests-python", tags=[TEST, PYTHON, CI])
 def tests_python(session: Session) -> None:
     """Run the Python test suite (pytest with coverage)."""
     session.log("Installing test dependencies...")
-    session.install("-e", ".", "--group", "dev", "--group", "test")
+    session.install("-e", ".", "--group", "dev")
 
     session.log(f"Running test suite with py{session.python}.")
     test_results_dir = Path("test-results")
@@ -120,7 +143,7 @@ def tests_python(session: Session) -> None:
 def docs_build(session: Session) -> None:
     """Build the project documentation (Sphinx)."""
     session.log("Installing documentation dependencies...")
-    session.install("-e", ".", "--group", "dev", "--group", "docs")
+    session.install("-e", ".", "--group", "dev")
 
     session.log(f"Building documentation with py{session.python}.")
     docs_build_dir = Path("docs") / "_build" / "html"
@@ -132,7 +155,7 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", "-b", "html", "docs", str(docs_build_dir), "-W")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="build-python", tags=[BUILD])
+@nox.session(python=DEFAULT_PYTHON_VERSION, name="build-python", tags=[BUILD, PYTHON])
 def build_python(session: Session) -> None:
     """Build sdist and wheel packages (uv build)."""
     session.log("Installing build dependencies...")
@@ -232,7 +255,7 @@ def release(session: Session) -> None:
     )
 
 
-@nox.session(venv_backend="none", tags=[MAINTENANCE])
+@nox.session(venv_backend="none")
 def tox(session: Session) -> None:
     """Run the 'tox' test matrix.
 
@@ -266,7 +289,7 @@ def coverage(session: Session) -> None:
     session.log("Note: Ensure 'nox -s test-python' was run across all desired Python versions first to generate coverage data.")
 
     session.log("Installing dependencies for coverage report session...")
-    session.install("-e", ".", "--group", "dev", "--group", "test")
+    session.install("-e", ".", "--group", "dev")
 
     coverage_combined_file: Path = Path.cwd() / ".coverage"
 
