@@ -49,4 +49,4 @@ Repository = "https://github.com/56kyle/robust-python-demo"
 
 [build-system]
 requires = ["setuptools>=61.0" ]
-build-backend = "setuptools.build_meta" 
+build-backend = "setuptools.build_meta"
