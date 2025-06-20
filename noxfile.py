@@ -23,6 +23,7 @@ PYTHON_VERSIONS: List[str] = [
 DEFAULT_PYTHON_VERSION: str = PYTHON_VERSIONS[-1]
 
 REPO_ROOT: Path = Path(__file__).parent.resolve()
+TESTS_FOLDER: Path = REPO_ROOT / "tests"
 SCRIPTS_FOLDER: Path = REPO_ROOT / "scripts"
 CRATES_FOLDER: Path = REPO_ROOT / "rust"
 
@@ -71,47 +72,38 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="format-python", tags=[FORMAT, PYTHON])
+@nox.session(python=None, name="format-python", tags=[FORMAT, PYTHON])
 def format_python(session: Session) -> None:
     """Run Python code formatter (Ruff format)."""
-    session.log("Installing formatting dependencies...")
-    session.install("-e", ".", "--group", "dev")
-
     session.log(f"Running Ruff formatter check with py{session.python}.")
-    session.run("ruff", "format", *session.posargs)
+    session.run("uvx", "ruff", "format", *session.posargs)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="lint-python", tags=[LINT, PYTHON])
+@nox.session(python=None, name="lint-python", tags=[LINT, PYTHON])
 def lint_python(session: Session) -> None:
     """Run Python code linters (Ruff check, Pydocstyle rules)."""
-    session.log("Installing linting dependencies...")
-    session.install("-e", ".", "--group", "dev")
-
     session.log(f"Running Ruff check with py{session.python}.")
-    session.run("ruff", "check", "--fix", "--verbose")
+    session.run("uvx", "ruff", "check", "--fix", "--verbose")
 
 
 @nox.session(python=PYTHON_VERSIONS, name="typecheck", tags=[TYPE, PYTHON, CI])
 def typecheck(session: Session) -> None:
     """Run static type checking (Pyright) on Python code."""
     session.log("Installing type checking dependencies...")
-    session.install("-e", ".", "--group", "dev")
+    session.install("pyright")
 
     session.log(f"Running Pyright check with py{session.python}.")
     session.run("pyright")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="security-python", tags=[SECURITY, PYTHON, CI])
+@nox.session(python=None, name="security-python", tags=[SECURITY, PYTHON, CI])
 def security_python(session: Session) -> None:
     """Run code security checks (Bandit) on Python code."""
-    session.log("Installing security dependencies...")
-    session.install("-e", ".", "--group", "dev")
-
     session.log(f"Running Bandit static security analysis with py{session.python}.")
-    session.run("bandit", "-r", PACKAGE_NAME, "-c", "bandit.yml", "-ll")
+    session.run("uvx", "bandit", "-r", PACKAGE_NAME, "-c", "bandit.yml", "-ll")
 
     session.log(f"Running pip-audit dependency security check with py{session.python}.")
-    session.run("pip-audit")
+    session.run("uvx", "pip-audit")
 
 
 @nox.session(python=PYTHON_VERSIONS, name="tests-python", tags=[TEST, PYTHON, CI])
@@ -121,11 +113,19 @@ def tests_python(session: Session) -> None:
     session.install("-e", ".", "--group", "dev")
 
     session.log(f"Running test suite with py{session.python}.")
-    test_results_dir = Path("test-results")
+    test_results_dir = TESTS_FOLDER / "results"
     test_results_dir.mkdir(parents=True, exist_ok=True)
-    junitxml_file = test_results_dir / f"test-results-py{session.python}.xml"
+    junitxml_file = test_results_dir / f"test-results-py{session.python.replace('.', '')}.xml"
 
-    session.run("pytest", "--cov={}".format(PACKAGE_NAME), "--cov-report=xml", f"--junitxml={junitxml_file}", "tests/")
+    session.run(
+        "pytest",
+        "--cov={}".format(PACKAGE_NAME),
+        "--cov-append",
+        "--cov-report=term",
+        "--cov-report=xml",
+        f"--junitxml={junitxml_file}",
+        "tests/"
+    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, name="docs-build", tags=[DOCS, BUILD])
@@ -147,12 +147,8 @@ def docs_build(session: Session) -> None:
 @nox.session(python=DEFAULT_PYTHON_VERSION, name="build-python", tags=[BUILD, PYTHON])
 def build_python(session: Session) -> None:
     """Build sdist and wheel packages (uv build)."""
-    session.log("Installing build dependencies...")
-    # Sync core & dev deps are needed for accessing project source code.
-    session.install("-e", ".", "--group", "dev")
-
     session.log(f"Building sdist and wheel packages with py{session.python}.")
-    session.run("uv", "build", "--sdist", "--wheel", "--outdir", "dist/", external=True)
+    session.run("uv", "build", "--sdist", "--wheel", "--out-dir", "dist/", external=True)
     session.log("Built packages in ./dist directory:")
     for path in Path("dist/").glob("*"):
         session.log(f"- {path.name}")
@@ -197,23 +193,21 @@ def build_container(session: Session) -> None:
     session.log(f"Container image {project_image_name}:latest built locally.")
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, name="publish-python", tags=[RELEASE])
+@nox.session(python=None, name="publish-python", tags=[RELEASE])
 def publish_python(session: Session) -> None:
     """Publish sdist and wheel packages to PyPI via uv publish.
 
     Requires packages to be built first (`nox -s build-python` or `nox -s build`).
     Requires TWINE_USERNAME/TWINE_PASSWORD or TWINE_API_KEY environment variables set (usually in CI).
     """
-    session.install("-e", ".", "--group", "dev")
-
     session.log("Checking built packages with Twine.")
-    session.run("twine", "check", "dist/*")
+    session.run("uvx", "twine", "check", "dist/*")
 
     session.log("Publishing packages to PyPI.")
     session.run("uv", "publish", "dist/*", external=True)
 
 
-@nox.session(venv_backend="none", tags=[RELEASE])
+@nox.session(python=None, tags=[RELEASE])
 def release(session: Session) -> None:
     """Run the release process using Commitizen.
 
@@ -221,8 +215,6 @@ def release(session: Session) -> None:
     Optionally accepts increment (major, minor, patch) after '--'.
     """
     session.log("Running release process using Commitizen...")
-    session.install("-e", ".", "--group", "dev")
-
     try:
         session.run("git", "version", success_codes=[0], external=True, silent=True)
     except CommandFailed:
@@ -230,7 +222,7 @@ def release(session: Session) -> None:
         session.skip("Git not available.")
 
     session.log("Checking Commitizen availability via uvx.")
-    session.run("cz", "--version", success_codes=[0])
+    session.run("uvx", "--from=commitizen", "cz", "version", success_codes=[0])
 
     increment = session.posargs[0] if session.posargs else None
     session.log(
@@ -238,7 +230,7 @@ def release(session: Session) -> None:
         increment if increment else "default",
     )
 
-    cz_bump_args = ["uvx", "cz", "bump", "--changelog"]
+    cz_bump_args = ["uvx", "--from=commitizen", "cz", "bump", "--changelog"]
 
     if increment:
         cz_bump_args.append(f"--increment={increment}")
@@ -250,7 +242,7 @@ def release(session: Session) -> None:
     session.log("IMPORTANT: Push commits and tags to remote (`git push --follow-tags`) to trigger CD pipeline.")
 
 
-@nox.session(venv_backend="none")
+@nox.session(python=None)
 def tox(session: Session) -> None:
     """Run the 'tox' test matrix.
 
