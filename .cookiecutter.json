@@ -1,7 +1,5 @@
 {
-  "_checkout": null,
-  "_output_dir": "C:\\Users\\56kyl\\source\\repos",
-  "_repo_dir": "C:\\Users\\56kyl\\source\\repos\\cookiecutter-robust-python",
+  "_commit": "12b6d5e45480e610046955a3570aaaedc77a1af6",
   "_template": "C:\\Users\\56kyl\\source\\repos\\cookiecutter-robust-python",
   "add_rust_extension": false,
   "author": "Kyle Oliver",
