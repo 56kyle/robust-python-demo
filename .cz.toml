@@ -1,6 +1,6 @@
 [tool.commitizen]
 tag_format = "v$version"
-version = 0.0.0
+version = "0.0.0"
 version_scheme = "pep440"
 version_provider = "pep621"
 
