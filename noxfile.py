@@ -193,20 +193,6 @@ def build_container(session: Session) -> None:
     session.log(f"Container image {project_image_name}:latest built locally.")
 
 
-@nox.session(python=None, name="publish-python", tags=[RELEASE])
-def publish_python(session: Session) -> None:
-    """Publish sdist and wheel packages to PyPI via uv publish.
-
-    Requires packages to be built first (`nox -s build-python` or `nox -s build`).
-    Requires TWINE_USERNAME/TWINE_PASSWORD or TWINE_API_KEY environment variables set (usually in CI).
-    """
-    session.log("Checking built packages with Twine.")
-    session.run("uvx", "twine", "check", "dist/*")
-
-    session.log("Publishing packages to PyPI.")
-    session.run("uv", "publish", "dist/*", external=True)
-
-
 @nox.session(python=None, tags=[RELEASE])
 def release(session: Session) -> None:
     """Run the release process using Commitizen.
@@ -240,6 +226,20 @@ def release(session: Session) -> None:
 
     session.log("Version bumped and tag created locally via Commitizen/uvx.")
     session.log("IMPORTANT: Push commits and tags to remote (`git push --follow-tags`) to trigger CD pipeline.")
+
+
+@nox.session(python=None, name="publish-python", tags=[RELEASE])
+def publish_python(session: Session) -> None:
+    """Publish sdist and wheel packages to PyPI via uv publish.
+
+    Requires packages to be built first (`nox -s build-python` or `nox -s build`).
+    Requires TWINE_USERNAME/TWINE_PASSWORD or TWINE_API_KEY environment variables set (usually in CI).
+    """
+    session.log("Checking built packages with Twine.")
+    session.run("uvx", "twine", "check", "dist/*")
+
+    session.log("Publishing packages to PyPI.")
+    session.run("uv", "publish", "dist/*", *session.posargs, external=True)
 
 
 @nox.session(python=None)
