@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Git tag to build and release (e.g., v1.2.3). Must already exist."
+        description: 'Git tag to build and release (e.g., v1.2.3). Must already exist.'
         required: true
 
 jobs:
@@ -103,6 +103,7 @@ jobs:
           # Optional: TWINE_REPOSITORY if publishing to a custom production index
         run: uvx nox -s publish-package # Call the publish-package session (defaults to pypi.org)
 
+
   # Job 3: Create GitHub Release (Runs regardless of PyPI publish success, relies on build job for info/artifacts)
   create_github_release:
     name: Create GitHub Release
@@ -133,6 +134,7 @@ jobs:
           name: Release ${{ steps.get_tag.outputs.tag }}
           # The body of the release notes - access the output from the 'build_and_testpypi' job
           body: ${{ needs.build_and_testpypi.outputs.changelog_body }} # Access changelog body from dependent job output
+
 
           files: dist/* # Attach built sdist and wheel files as release assets
           # Optional: Mark as a draft release for manual review before publishing
