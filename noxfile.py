@@ -90,10 +90,10 @@ def lint_python(session: Session) -> None:
 def typecheck(session: Session) -> None:
     """Run static type checking (Pyright) on Python code."""
     session.log("Installing type checking dependencies...")
-    session.install("pyright")
+    session.install("-e", ".", "--group", "dev")
 
     session.log(f"Running Pyright check with py{session.python}.")
-    session.run("pyright")
+    session.run("pyright", "--pythonversion", session.python)
 
 
 @nox.session(python=None, name="security-python", tags=[SECURITY, PYTHON, CI])
@@ -124,7 +124,7 @@ def tests_python(session: Session) -> None:
         "--cov-report=term",
         "--cov-report=xml",
         f"--junitxml={junitxml_file}",
-        "tests/",
+        "tests/"
     )
 
 
