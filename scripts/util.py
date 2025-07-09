@@ -7,16 +7,16 @@ import sys
 from pathlib import Path
 from typing import Any
 from typing import Callable
-from typing import Literal
 from typing import Optional
+<<<<<<< ours
 print(sys.version_info)
 print(sys.executable)
 from typing_extensions import TypeAlias
+=======
+>>>>>>> theirs
 
 
 REPO_FOLDER: Path = Path(__file__).resolve().parent.parent
-
-Increment: TypeAlias = Literal["MAJOR", "MINOR", "PATCH", "PRERELEASE"]
 
 
 class MissingDependencyError(Exception):
@@ -72,7 +72,7 @@ def get_package_version() -> str:
     return result.stdout.decode("utf-8").strip()
 
 
-def get_bumped_package_version(increment: Optional[Increment] = None) -> str:
+def get_bumped_package_version(increment: Optional[str] = None) -> str:
     """Gets the bumped package version."""
     args: list[str] = ["uvx", "cz", "bump", "--get-next", "--yes", "--dry-run"]
     if increment is not None:
@@ -92,7 +92,7 @@ def create_release_branch(new_version: str) -> None:
         subprocess.run(command, cwd=REPO_FOLDER, capture_output=True, check=True)
 
 
-def bump_version(increment: Optional[Increment] = None) -> None:
+def bump_version(increment: Optional[str] = None) -> None:
     """Bumps the package version."""
     bump_cmd: list[str] = ["uvx", "cz", "bump", "--yes", "--files-only", "--changelog"]
     if increment is not None:
