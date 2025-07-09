@@ -3,17 +3,10 @@
 import argparse
 import stat
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Optional
-<<<<<<< ours
-print(sys.version_info)
-print(sys.executable)
-from typing_extensions import TypeAlias
-=======
->>>>>>> theirs
 
 
 REPO_FOLDER: Path = Path(__file__).resolve().parent.parent
