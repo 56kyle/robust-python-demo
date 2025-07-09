@@ -208,13 +208,7 @@ def setup_release(session: Session) -> None:
 def get_release_notes(session: Session) -> None:
     """Gets the latest release notes if between bumping the version and tagging the release."""
     session.log("Getting release notes...")
-<<<<<<< ours
-    session.install("-e", ".", "--group", "dev")
-    session.install("typing_extensions")
-    session.run("python", SCRIPTS_FOLDER / "get-release-notes.py", external=True)
-=======
     session.run("python", SCRIPTS_FOLDER / "get-release-notes.py", *session.posargs, external=True)
->>>>>>> theirs
 
 
 @nox.session(python=False, tags=[RELEASE])
