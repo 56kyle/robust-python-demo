@@ -193,7 +193,7 @@ def build_container(session: Session) -> None:
     session.log(f"Container image {project_image_name}:latest built locally.")
 
 
-@nox.session(python=None, name="setup-release", tags=[RELEASE])
+@nox.session(python=False, name="setup-release", tags=[RELEASE])
 def setup_release(session: Session) -> None:
     """Prepares a release by creating a release branch and bumping the version.
 
@@ -208,6 +208,8 @@ def setup_release(session: Session) -> None:
 def get_release_notes(session: Session) -> None:
     """Gets the latest release notes if between bumping the version and tagging the release."""
     session.log("Getting release notes...")
+    session.install("-e", ".", "--group", "dev")
+    session.install("typing_extensions")
     session.run("python", SCRIPTS_FOLDER / "get-release-notes.py", external=True)
 
 

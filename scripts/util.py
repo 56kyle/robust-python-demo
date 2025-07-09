@@ -3,11 +3,14 @@
 import argparse
 import stat
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Literal
 from typing import Optional
+print(sys.version_info)
+print(sys.executable)
 from typing_extensions import TypeAlias
 
 
