@@ -50,7 +50,7 @@ def setup_release(increment: Optional[str] = None) -> None:
 
     commands: list[list[str]] = [
         ["git", "add", "."],
-        ["git", "commit", "-m", f"bump: version {current_version} → {new_version}", "--no-verify"]
+        ["git", "commit", "-m", f"bump: version {current_version} → {new_version}"]
     ]
 
     for command in commands:
