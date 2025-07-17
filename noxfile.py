@@ -47,13 +47,13 @@ PYTHON: str = "python"
 RUST: str = "rust"
 
 
-@nox.session(python=None, name="setup-git", tags=[ENV])
+@nox.session(python=False, name="setup-git", tags=[ENV])
 def setup_git(session: Session) -> None:
     """Set up the git repo for the current project."""
     session.run("python", SCRIPTS_FOLDER / "setup-git.py", REPO_ROOT, external=True)
 
 
-@nox.session(python=None, name="setup-venv", tags=[ENV])
+@nox.session(python=False, name="setup-venv", tags=[ENV])
 def setup_venv(session: Session) -> None:
     """Set up the virtual environment for the current project."""
     session.run("python", SCRIPTS_FOLDER / "setup-venv.py", REPO_ROOT, "-p", PYTHON_VERSIONS[0], external=True)
@@ -72,14 +72,14 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@nox.session(python=None, name="format-python", tags=[FORMAT, PYTHON])
+@nox.session(python=False, name="format-python", tags=[FORMAT, PYTHON])
 def format_python(session: Session) -> None:
     """Run Python code formatter (Ruff format)."""
     session.log(f"Running Ruff formatter check with py{session.python}.")
     session.run("uvx", "ruff", "format", *session.posargs)
 
 
-@nox.session(python=None, name="lint-python", tags=[LINT, PYTHON])
+@nox.session(python=False, name="lint-python", tags=[LINT, PYTHON])
 def lint_python(session: Session) -> None:
     """Run Python code linters (Ruff check, Pydocstyle rules)."""
     session.log(f"Running Ruff check with py{session.python}.")
@@ -96,7 +96,7 @@ def typecheck(session: Session) -> None:
     session.run("pyright", "--pythonversion", session.python)
 
 
-@nox.session(python=None, name="security-python", tags=[SECURITY, PYTHON, CI])
+@nox.session(python=False, name="security-python", tags=[SECURITY, PYTHON, CI])
 def security_python(session: Session) -> None:
     """Run code security checks (Bandit) on Python code."""
     session.log(f"Running Bandit static security analysis with py{session.python}.")
@@ -144,7 +144,7 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", "-b", "html", "docs", str(docs_build_dir), "-W")
 
 
-@nox.session(python=None, name="build-python", tags=[BUILD, PYTHON])
+@nox.session(python=False, name="build-python", tags=[BUILD, PYTHON])
 def build_python(session: Session) -> None:
     """Build sdist and wheel packages (uv build)."""
     session.log(f"Building sdist and wheel packages with py{session.python}.")
@@ -154,7 +154,7 @@ def build_python(session: Session) -> None:
         session.log(f"- {path.name}")
 
 
-@nox.session(python=None, name="build-container", tags=[BUILD])
+@nox.session(python=False, name="build-container", tags=[BUILD])
 def build_container(session: Session) -> None:
     """Build the Docker container image.
 
@@ -193,18 +193,25 @@ def build_container(session: Session) -> None:
     session.log(f"Container image {project_image_name}:latest built locally.")
 
 
-@nox.session(python=None, name="prepare-release", tags=[RELEASE])
-def prepare_release(session: Session) -> None:
+@nox.session(python=False, name="setup-release", tags=[RELEASE])
+def setup_release(session: Session) -> None:
     """Prepares a release by creating a release branch and bumping the version.
 
-    Does not commit or push the release branch. Additionally, does not tag the release.
+    Additionally, creates the initial bump commit but doesn't push it.
     """
-    session.log("Preparing release...")
+    session.log("Setting up release...")
 
-    session.run("python", SCRIPTS_FOLDER / "prepare-release.py", external=True)
+    session.run("python", SCRIPTS_FOLDER / "setup-release.py", external=True)
 
 
-@nox.session(python=None, tags=[RELEASE])
+@nox.session(python=False, name="get-release-notes", tags=[RELEASE])
+def get_release_notes(session: Session) -> None:
+    """Gets the latest release notes if between bumping the version and tagging the release."""
+    session.log("Getting release notes...")
+    session.run("python", SCRIPTS_FOLDER / "get-release-notes.py", *session.posargs, external=True)
+
+
+@nox.session(python=False, tags=[RELEASE])
 def release(session: Session) -> None:
     """Run the release process using Commitizen.
 
@@ -239,7 +246,7 @@ def release(session: Session) -> None:
     session.log("IMPORTANT: Push commits and tags to remote (`git push --follow-tags`) to trigger CD pipeline.")
 
 
-@nox.session(python=None, name="publish-python", tags=[RELEASE])
+@nox.session(python=False, name="publish-python", tags=[RELEASE])
 def publish_python(session: Session) -> None:
     """Publish sdist and wheel packages to PyPI via uv publish.
 
@@ -253,7 +260,7 @@ def publish_python(session: Session) -> None:
     session.run("uv", "publish", "dist/*", *session.posargs, external=True)
 
 
-@nox.session(python=None)
+@nox.session(python=False)
 def tox(session: Session) -> None:
     """Run the 'tox' test matrix.
 
