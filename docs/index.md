@@ -19,5 +19,5 @@ reference
 contributing
 Code of Conduct <codeofconduct>
 License <license>
-Changelog <https://github.com/56kyle/robust-python-demo/releases>
+Changelog <changelog>
 ```
