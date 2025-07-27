@@ -2,7 +2,7 @@
 
 ```{include} ../CONTRIBUTING.md
 ---
-start-after: # Contributing to robust_python_demo
+start-after: # Contributing to robust-python-demo
 end-before: <!-- github-only -->
 ---
 
