@@ -59,7 +59,7 @@ If your project defines command-line entry points in `pyproject.toml`:
 # robust-python-demo do-something --input file.txt
 ```
 
-For detailed API documentation and CLI command references, see the **[Documentation](https://robust-python-demo.readthedocs.io/)**.
+For detailed API documentation and CLI command references, see the **[Documentation][documentation]**.
 
 ## Development Workflow
 
@@ -87,4 +87,9 @@ Distributed under the terms of the **MIT** license. See [LICENSE](LICENSE) for d
 
 ---
 
-**This project was generated from the [cookiecutter-robust-python template](https://github.com/56kyle/cookiecutter-robust-python).**
+**This project was generated from the [cookiecutter-robust-python template][cookiecutter-robust-python].**
+
+<!-- Reference Links -->
+[cookiecutter-robust-python]: https://github.com/56kyle/cookiecutter-robust-python
+
+[documentation]: https://robust-python-demo.readthedocs.io/

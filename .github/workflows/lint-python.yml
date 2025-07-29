@@ -11,7 +11,6 @@ on:
       - "noxfile.py"
       - "pyproject.toml"
       - ".ruff.toml"
-      - ".pydocstyle"
       - ".github/workflows/lint-python.yml"
   push:
     branches:
@@ -23,7 +22,6 @@ on:
       - "noxfile.py"
       - "pyproject.toml"
       - ".ruff.toml"
-      - ".pydocstyle"
       - ".github/workflows/lint-python.yml"
 
   workflow_dispatch:
@@ -45,8 +43,5 @@ jobs:
         with:
           python-version-file: ".github/workflows/.python-version"
 
-      - name: Run formatting checks
-        run: uvx nox -s format-python
-
-      - name: Run linting checks
-        run: uvx nox -s lint-python
+      - name: Run Python quality checks
+        run: uvx nox -t quality
