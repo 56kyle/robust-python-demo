@@ -1,4 +1,5 @@
 """Script responsible for getting the release notes of the robust-python-demo package."""
+
 import argparse
 from pathlib import Path
 
