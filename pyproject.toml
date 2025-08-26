@@ -6,7 +6,7 @@ authors = [
     { name = "Kyle Oliver", email = "56kyleoliver+cookiecutter-robust-python@gmail.com" },
 ]
 license = "MIT"
-license-files.paths = ["LICENSE"]
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.9,<4.0"
 keywords = [
