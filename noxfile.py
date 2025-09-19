@@ -39,13 +39,10 @@ TYPE: str = "type"
 TEST: str = "test"
 COVERAGE: str = "coverage"
 SECURITY: str = "security"
-PERF: str = "perf"
 DOCS: str = "docs"
 BUILD: str = "build"
 RELEASE: str = "release"
 QUALITY: str = "quality"
-PYTHON: str = "python"
-RUST: str = "rust"
 
 
 @nox.session(python=False, name="setup-git", tags=[ENV])
@@ -88,21 +85,21 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@nox.session(python=False, name="format-python", tags=[FORMAT, PYTHON, QUALITY])
+@nox.session(python=False, name="format-python", tags=[FORMAT, QUALITY])
 def format_python(session: Session) -> None:
     """Run Python code formatter (Ruff format)."""
     session.log(f"Running Ruff formatter check with py{session.python}.")
     session.run("uvx", "ruff", "format", *session.posargs)
 
 
-@nox.session(python=False, name="lint-python", tags=[LINT, PYTHON, QUALITY])
+@nox.session(python=False, name="lint-python", tags=[LINT, QUALITY])
 def lint_python(session: Session) -> None:
     """Run Python code linters (Ruff check, Pydocstyle rules)."""
     session.log(f"Running Ruff check with py{session.python}.")
     session.run("uvx", "ruff", "check", "--fix", "--verbose")
 
 
-@nox.session(python=PYTHON_VERSIONS, name="typecheck", tags=[TYPE, PYTHON])
+@nox.session(python=PYTHON_VERSIONS, name="typecheck")
 def typecheck(session: Session) -> None:
     """Run static type checking (Pyright) on Python code."""
     session.log("Installing type checking dependencies...")
@@ -112,7 +109,7 @@ def typecheck(session: Session) -> None:
     session.run("pyright", "--pythonversion", session.python)
 
 
-@nox.session(python=False, name="security-python", tags=[SECURITY, PYTHON])
+@nox.session(python=False, name="security-python", tags=[SECURITY])
 def security_python(session: Session) -> None:
     """Run code security checks (Bandit) on Python code."""
     session.log(f"Running Bandit static security analysis with py{session.python}.")
@@ -122,7 +119,7 @@ def security_python(session: Session) -> None:
     session.run("uvx", "pip-audit")
 
 
-@nox.session(python=PYTHON_VERSIONS, name="tests-python", tags=[TEST, PYTHON])
+@nox.session(python=PYTHON_VERSIONS, name="tests-python", tags=[TEST])
 def tests_python(session: Session) -> None:
     """Run the Python test suite (pytest with coverage)."""
     session.log("Installing test dependencies...")
@@ -160,7 +157,7 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", "-b", "html", "docs", str(docs_build_dir), "-W")
 
 
-@nox.session(python=False, name="build-python", tags=[BUILD, PYTHON])
+@nox.session(python=False, name="build-python", tags=[BUILD])
 def build_python(session: Session) -> None:
     """Build sdist and wheel packages (uv build)."""
     session.log(f"Building sdist and wheel packages with py{session.python}.")
